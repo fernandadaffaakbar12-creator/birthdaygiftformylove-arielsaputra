@@ -175,7 +175,7 @@
         const pinPopupClose = document.getElementById('pin-popup-close');
 
         // DEFAULT PIN: Silakan ubah angka ini jika ingin PIN lain
-        const SECRET_PIN = "2104";
+        const SECRET_PIN = "1211";
 
         let pinAttempt = 0;
         let popupTimeout = null;
@@ -371,6 +371,8 @@
 // ==========================================
 // 1. FUNGSI FOTO MEMBESAR (LIGHTBOX) & PEMUTAR MUSIK
 // ==========================================
+let bgMusicPausedByEmbed = false;
+
 document.addEventListener("DOMContentLoaded", function () {
     const daftarFoto = document.querySelectorAll('.gallery-scroll img, .polaroid, .planet-card');
     const modal = document.getElementById('image-modal');
@@ -395,6 +397,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     const embedUrl = this.getAttribute('data-embed');
                     modalIframe.src = embedUrl; // Masukkan link
+
+                    // Hentikan sementara backsound saat membuka Spotify/YouTube
+                    const bgMusic = document.getElementById('bg-music');
+                    const iconPlay = document.getElementById('icon-play');
+                    const iconPause = document.getElementById('icon-pause');
+                    if (bgMusic && !bgMusic.paused) {
+                        bgMusic.pause();
+                        bgMusicPausedByEmbed = true;
+                        if (iconPlay) iconPlay.style.display = 'block';
+                        if (iconPause) iconPause.style.display = 'none';
+                    }
 
                     // Hapus class lama
                     modalIframe.classList.remove('iframe-spotify', 'iframe-youtube', 'iframe-facebook');
@@ -424,7 +437,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 // C. JIKA YANG DIKLIK ADALAH POLAROID
                 else if (this.classList.contains('polaroid')) {
                     modalImg.src = this.querySelector('img').src;
-                    modalImg.style.aspectRatio = "1 / 1";
+                    modalImg.style.aspectRatio = "3 / 4";
                 }
                 // D. JIKA YANG DIKLIK ADALAH GALERI CINTA
                 else {
@@ -454,6 +467,19 @@ function tutupModal() {
         // KUNCI PENTING: Mengosongkan src agar lagu berhenti berputar saat ditutup
         if (modalIframe) {
             modalIframe.src = "";
+        }
+
+        // Lanjutkan kembali backsound jika sebelumnya dihentikan karena Spotify/YouTube
+        if (bgMusicPausedByEmbed) {
+            const bgMusic = document.getElementById('bg-music');
+            const iconPlay = document.getElementById('icon-play');
+            const iconPause = document.getElementById('icon-pause');
+            if (bgMusic) {
+                bgMusic.play().catch(console.error);
+                if (iconPlay) iconPlay.style.display = 'none';
+                if (iconPause) iconPause.style.display = 'block';
+            }
+            bgMusicPausedByEmbed = false;
         }
     }
 }
